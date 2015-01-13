@@ -37,23 +37,21 @@
 <span class="hljs-keyword">var</span> Actions = <span class="hljs-built_in">require</span>(<span class="hljs-string">"./Actions"</span>);
 <span class="hljs-keyword">var</span> Reflux = <span class="hljs-built_in">require</span>(<span class="hljs-string">'reflux'</span>);
 
-<span class="hljs-keyword">var</span> User = {};
-
 <span class="hljs-keyword">var</span> UserStore = Reflux.createStore({
   init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
+    <span class="hljs-keyword">this</span>.User = [];
     <span class="hljs-keyword">this</span>.listenTo(Actions.login,<span class="hljs-keyword">this</span>.login.bind(<span class="hljs-keyword">this</span>));
     <span class="hljs-keyword">this</span>.listenTo(Actions.logout,<span class="hljs-keyword">this</span>.logout.bind(<span class="hljs-keyword">this</span>));
   },
   login: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(user)</span></span>{
-    <span class="hljs-built_in">console</span>.log(user);
     <span class="hljs-keyword">this</span>.User = user;
     <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.User));
   },
   logout: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
-    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.User));
+    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-literal">null</span>));
   },
   getDefaultData: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.User || {};
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.User || [];
   }
 });
 

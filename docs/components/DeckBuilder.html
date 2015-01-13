@@ -51,7 +51,7 @@
 <span class="hljs-keyword">var</span> DeckCalculatorAllCards = React.createClass({
 	getInitialState: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
 		<span class="hljs-keyword">this</span>.cards = [];
-		<span class="hljs-keyword">return</span> {cards: [], key:<span class="hljs-string">"null"</span>, name:<span class="hljs-string">"default"</span>, url:<span class="hljs-string">"defaultURL"</span>};
+		<span class="hljs-keyword">return</span> {cards: [], key:<span class="hljs-string">"null"</span>, name:<span class="hljs-string">"default"</span>, url:<span class="hljs-string">"defaultURL"</span>, owner:<span class="hljs-string">"guest"</span>};
   	},
   componentWillMount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
   		<span class="hljs-keyword">this</span>.firebaseRefAllCards = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/all_Cards/"</span>);
@@ -60,7 +60,8 @@
   			<span class="hljs-keyword">var</span> card = {
 	            key: dataSnapshot.name(),
 	            name: dataSnapshot.val().name,
-	            url: dataSnapshot.val().url
+	            url: dataSnapshot.val().url,
+              owner: dataSnapshot.val().owner
         	};
 
    			<span class="hljs-keyword">this</span>.cards.push(
@@ -75,8 +76,7 @@
 	componentWillUnmount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     	<span class="hljs-keyword">this</span>.firebaseRefAllCards.off();
     },
-  handleOnAdd: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(card)</span></span>{
-    	
+  handleOnAdd: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(card)</span></span>{    	
       Actions.addUserCard(card);
     },
   	render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
@@ -102,18 +102,20 @@ var CardsListUserCard = React.createClass({
 <span class="hljs-keyword">var</span> DeckCalculatorUserCards = React.createClass({
   mixins: [Reflux.connect(CardStore,<span class="hljs-string">"userCards"</span>)],
 	getInitialState: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-keyword">this</span>.userCards = [];
 		<span class="hljs-keyword">this</span>.defaultUserName = <span class="hljs-string">"Guest"</span>;
 		<span class="hljs-keyword">return</span> {userCards: [], key:<span class="hljs-string">"null"</span>, name:<span class="hljs-string">"default"</span>, url:<span class="hljs-string">"defaultURL"</span>};
-  	},
+  },
   componentWillMount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
 	},
 	componentWillUnmount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
   },    
   handleOnRemove: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(card)</span></span>{
-
       Actions.removeUserCard(card);
   },
   render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"render"</span>);
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>.userCards);
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'div'</span>&gt;</span>
       	<span class="hljs-tag">&lt;<span class="hljs-title">h3</span>&gt;</span>{ this.state.userName } Cards<span class="hljs-tag">&lt;/<span class="hljs-title">h3</span>&gt;</span>

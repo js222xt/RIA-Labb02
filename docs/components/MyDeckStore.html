@@ -36,17 +36,48 @@
 <span class="hljs-keyword">var</span> Firebase = <span class="hljs-built_in">require</span>(<span class="hljs-string">"firebase"</span>);
 <span class="hljs-keyword">var</span> Actions = <span class="hljs-built_in">require</span>(<span class="hljs-string">"./Actions"</span>);
 <span class="hljs-keyword">var</span> Reflux = <span class="hljs-built_in">require</span>(<span class="hljs-string">'reflux'</span>);
+<span class="hljs-keyword">var</span> UserStore = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./UserStore'</span>);
 
-<span class="hljs-keyword">var</span> cardRef = <span class="hljs-keyword">new</span> Firebase(<span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/guest/cards"</span>);
+<span class="hljs-keyword">var</span> defaultUserStiring = <span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/guest/cards"</span>;
+<span class="hljs-keyword">var</span> defaultUsernameString = <span class="hljs-string">"guest"</span>;
+<span class="hljs-keyword">var</span> userBaseString = <span class="hljs-string">"https://sizzling-torch-8926.firebaseio.com/users/"</span>;
+<span class="hljs-keyword">var</span> cardRef = <span class="hljs-keyword">new</span> Firebase(defaultUserStiring);
 
 <span class="hljs-keyword">var</span> CardStore = Reflux.createStore({
+  mixins: [Reflux.connect(UserStore,<span class="hljs-string">"User"</span>)],
   init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
     <span class="hljs-keyword">this</span>.cards = [];
+    <span class="hljs-keyword">this</span>.User = [];
     cardRef.on(<span class="hljs-string">"child_added"</span>,<span class="hljs-keyword">this</span>.updateCards.bind(<span class="hljs-keyword">this</span>));
+    <span class="hljs-keyword">this</span>.trigger(([]));
     <span class="hljs-keyword">this</span>.listenTo(Actions.addUserCard,<span class="hljs-keyword">this</span>.addCard.bind(<span class="hljs-keyword">this</span>));
     <span class="hljs-keyword">this</span>.listenTo(Actions.removeUserCard,<span class="hljs-keyword">this</span>.removeCard.bind(<span class="hljs-keyword">this</span>));
+    <span class="hljs-keyword">this</span>.listenTo(Actions.login,<span class="hljs-keyword">this</span>.login.bind(<span class="hljs-keyword">this</span>));
+    <span class="hljs-keyword">this</span>.listenTo(Actions.logout,<span class="hljs-keyword">this</span>.logout.bind(<span class="hljs-keyword">this</span>));
+  },
+  login: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(user)</span></span>{
+    <span class="hljs-keyword">this</span>.User = user;
+    <span class="hljs-keyword">this</span>.cards = [];
+    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.cards));
+    cardRef = <span class="hljs-keyword">new</span> Firebase(userBaseString +  user.github.username + <span class="hljs-string">"/cards"</span>);
+    cardRef.on(<span class="hljs-string">"child_added"</span>,<span class="hljs-keyword">this</span>.updateCards.bind(<span class="hljs-keyword">this</span>));
+  },
+  logout: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
+    <span class="hljs-keyword">this</span>.cards = [];
+    <span class="hljs-keyword">this</span>.User = [];
+    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.cards));
+    cardRef = <span class="hljs-keyword">new</span> Firebase(defaultUserStiring);
+    cardRef.on(<span class="hljs-string">"child_added"</span>,<span class="hljs-keyword">this</span>.updateCards.bind(<span class="hljs-keyword">this</span>));
   },
   addCard: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(card)</span></span>{
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>.User.github != <span class="hljs-literal">undefined</span>);
+    <span class="hljs-keyword">if</span>( <span class="hljs-keyword">this</span>.User.github != <span class="hljs-literal">undefined</span> ){
+      card.owner = <span class="hljs-keyword">this</span>.User.github.username;
+    }
+    <span class="hljs-keyword">else</span>{
+      card.owner = defaultUsernameString;
+    }
+
     cardRef.push(card,<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(err)</span></span>{
       <span class="hljs-keyword">if</span> (err){
         <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"did not add card"</span>);
@@ -67,22 +98,56 @@
     <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.cards));
   },
   updateCards: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(snapshot)</span></span>{
-    <span class="hljs-keyword">var</span> card = {
-        key: snapshot.name(),
-        name: snapshot.val().name,
-        url: snapshot.val().url
-    };
 
-    <span class="hljs-keyword">this</span>.cards.push(
-      card
-    );
+    <span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.User.github != <span class="hljs-literal">undefined</span>){
+        <span class="hljs-keyword">if</span>(<span class="hljs-keyword">this</span>.User.github.username == snapshot.val().owner){
+          <span class="hljs-keyword">var</span> card = {
+              key: snapshot.name(),
+              name: snapshot.val().name,
+              url: snapshot.val().url,
+              owner: snapshot.val().owner
+          };
 
-    <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.cards));
+          <span class="hljs-keyword">if</span>(!cardExixsts(<span class="hljs-keyword">this</span>.cards,card)){
+            <span class="hljs-keyword">this</span>.cards.push(
+              card
+            );
+
+            <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.cards));
+          }         
+        }
+    }
+    <span class="hljs-keyword">else</span>{
+        <span class="hljs-keyword">var</span> card = {
+            key: snapshot.name(),
+            name: snapshot.val().name,
+            url: snapshot.val().url,
+            owner: snapshot.val().owner
+        };
+
+       
+        <span class="hljs-keyword">if</span>(!cardExixsts(<span class="hljs-keyword">this</span>.cards,card)){
+          <span class="hljs-keyword">this</span>.cards.push(
+            card
+          );
+
+          <span class="hljs-keyword">this</span>.trigger((<span class="hljs-keyword">this</span>.cards));
+        }
+    }
   },
   getDefaultData: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.cards || [];
   }
 });
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cardExixsts</span><span class="hljs-params">(cards,card)</span></span>{
+  <span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; cards.length; i++){
+    <span class="hljs-keyword">if</span>(cards[i].key == card.key ){
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+}
 
 <span class="hljs-built_in">module</span>.exports = CardStore;</pre></div></div>
             

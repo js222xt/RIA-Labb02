@@ -44,6 +44,7 @@
 	getInitialState: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     	<span class="hljs-keyword">this</span>.items = [];
     	<span class="hljs-keyword">this</span>.admins = [];
+    	<span class="hljs-keyword">this</span>.User = [];
     	<span class="hljs-keyword">return</span> {items: [], name: <span class="hljs-string">""</span>, url:<span class="hljs-string">""</span>};
   	},
   	componentWillMount: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
@@ -92,11 +93,9 @@
     URLOnChange: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(e)</span> </span>{
 	    <span class="hljs-keyword">this</span>.setState({url: e.target.value});
     },
-	render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
-		<span class="hljs-built_in">console</span>.log(<span class="hljs-string">"current user"</span>);
-		<span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>.state.User);
+	render: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{	
 		
-		<span class="hljs-keyword">if</span>(isAdmin(<span class="hljs-keyword">this</span>.state.admins, <span class="hljs-keyword">this</span>.state.user)){
+		<span class="hljs-keyword">if</span>(isAdmin(<span class="hljs-keyword">this</span>.state.admins, <span class="hljs-keyword">this</span>.state.User)){
 			<span class="hljs-keyword">return</span>(
 				 <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">className</span>=<span class="hljs-value">'div'</span>&gt;</span>
 					<span class="hljs-tag">&lt;<span class="hljs-title">form</span> <span class="hljs-attribute">onSubmit</span>=<span class="hljs-value">{</span> <span class="hljs-attribute">this.handleSubmit</span> }&gt;</span>
@@ -128,6 +127,7 @@ function imageExists(url, callback) {
 }
 
 function isAdmin(admins, user){
+
 	if(admins != null &amp;&amp; user != null){
 		for (var i = 0; i <span class="hljs-tag">&lt; <span class="hljs-attribute">admins.length</span>; <span class="hljs-attribute">i</span>++) {
 			<span class="hljs-attribute">if</span>(<span class="hljs-attribute">admins</span>[<span class="hljs-attribute">i</span>]<span class="hljs-attribute">.username</span> =<span class="hljs-value">=</span> <span class="hljs-attribute">user.github.username</span>){

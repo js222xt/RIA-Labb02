@@ -12,6 +12,7 @@ var UpdateCards = React.createClass({
 	getInitialState: function() {
     	this.items = [];
     	this.admins = [];
+    	this.User = [];
     	return {items: [], name: "", url:""};
   	},
   	componentWillMount: function() {
@@ -60,11 +61,9 @@ var UpdateCards = React.createClass({
     URLOnChange: function(e) {
 	    this.setState({url: e.target.value});
     },
-	render: function(){
-		console.log("current user");
-		console.log(this.state.User);
+	render: function(){	
 		
-		if(isAdmin(this.state.admins, this.state.user)){
+		if(isAdmin(this.state.admins, this.state.User)){
 			return(
 				 <div className='div'>
 					<form onSubmit={ this.handleSubmit }>
@@ -96,6 +95,7 @@ function imageExists(url, callback) {
 }
 
 function isAdmin(admins, user){
+
 	if(admins != null && user != null){
 		for (var i = 0; i < admins.length; i++) {
 			if(admins[i].username == user.github.username){

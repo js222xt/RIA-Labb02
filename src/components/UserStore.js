@@ -5,23 +5,21 @@ var Firebase = require("firebase");
 var Actions = require("./Actions");
 var Reflux = require('reflux');
 
-var User = {};
-
 var UserStore = Reflux.createStore({
   init: function(){
+    this.User = [];
     this.listenTo(Actions.login,this.login.bind(this));
     this.listenTo(Actions.logout,this.logout.bind(this));
   },
   login: function(user){
-    console.log(user);
     this.User = user;
     this.trigger((this.User));
   },
   logout: function(){
-    this.trigger((this.User));
+    this.trigger((null));
   },
   getDefaultData: function(){
-    return this.User || {};
+    return this.User || [];
   }
 });
 

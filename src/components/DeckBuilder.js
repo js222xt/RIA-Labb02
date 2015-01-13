@@ -19,7 +19,7 @@ var CardsListAllCard = React.createClass({
 var DeckCalculatorAllCards = React.createClass({
 	getInitialState: function() {
 		this.cards = [];
-		return {cards: [], key:"null", name:"default", url:"defaultURL"};
+		return {cards: [], key:"null", name:"default", url:"defaultURL", owner:"guest"};
   	},
   componentWillMount: function() {
   		this.firebaseRefAllCards = new Firebase("https://sizzling-torch-8926.firebaseio.com/all_Cards/");
@@ -28,7 +28,8 @@ var DeckCalculatorAllCards = React.createClass({
   			var card = {
 	            key: dataSnapshot.name(),
 	            name: dataSnapshot.val().name,
-	            url: dataSnapshot.val().url
+	            url: dataSnapshot.val().url,
+              owner: dataSnapshot.val().owner
         	};
 
    			this.cards.push(
@@ -43,8 +44,7 @@ var DeckCalculatorAllCards = React.createClass({
 	componentWillUnmount: function() {
     	this.firebaseRefAllCards.off();
     },
-  handleOnAdd: function(card){
-    	
+  handleOnAdd: function(card){    	
       Actions.addUserCard(card);
     },
   	render: function() {
@@ -72,13 +72,12 @@ var DeckCalculatorUserCards = React.createClass({
 	getInitialState: function() {
 		this.defaultUserName = "Guest";
 		return {userCards: [], key:"null", name:"default", url:"defaultURL"};
-  	},
+  },
   componentWillMount: function() {
 	},
 	componentWillUnmount: function() {
   },    
   handleOnRemove: function(card){
-
       Actions.removeUserCard(card);
   },
   render: function() {
